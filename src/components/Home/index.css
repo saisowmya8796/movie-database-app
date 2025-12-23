@@ -1,0 +1,41 @@
+.home-container {
+  background-color: #ffffff;
+  padding: 16px;
+}
+
+.page-title {
+  color: #aa076b;
+  font-size: 18px;
+  margin: 0px;
+  margin-bottom: 16px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .page-title {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 900px) {
+  .movies-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .page-title {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .movies-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

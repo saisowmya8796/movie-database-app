@@ -1,4 +1,4 @@
-.home-container {
+.page-container {
   background-color: #ffffff;
   padding: 16px;
 }
@@ -8,6 +8,13 @@
   font-size: 18px;
   margin: 0px;
   margin-bottom: 16px;
+}
+
+.no-results {
+  text-align: center;
+  font-size: 16px;
+  color: #ec0a0a;
+  margin-top: 24px;
 }
 
 .movies-grid {

@@ -8,7 +8,7 @@ import FailureView from '../FailureView'
 import MovieCard from '../MovieCard'
 import Pagination from '../Pagination'
 
-import './index.css'
+import '../PageLayout/index.css'
 
 const apiStatusConstants = {
   initial: 'INITIAL',
@@ -60,7 +60,15 @@ const Home = () => {
   const renderSuccessView = () => {
     const {data} = apiResponse
 
-    const totalPagesFromApi = data.total_pages
+    if (!data || !Array.isArray(data.results) || data.results.length === 0) {
+      return <p className="no-results">No movies available.</p>
+    }
+
+    const totalPagesFromApi =
+      data !== null && data !== undefined && data.total_pages
+        ? data.total_pages
+        : 1
+
     const effectiveTotalPages = Math.min(totalPagesFromApi, MAX_PAGES)
 
     const formattedMovieData = data.results.map(movie => ({
@@ -104,7 +112,7 @@ const Home = () => {
   }
 
   return (
-    <div className="home-container">
+    <div className="page-container">
       <h1 className="page-title">Popular Movies</h1>
       {renderPopularMovies()}
     </div>

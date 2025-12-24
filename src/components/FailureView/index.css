@@ -1,25 +1,26 @@
 .failure-container {
   text-align: center;
-  color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #000000;
+  min-height: 100vh;
+  background-color: #ffffff;
 }
 
 .failure-text {
-  color: #ffffff;
-  font-size: 16px;
+  color: #ff0000;
+  font-size: 18px;
   margin-bottom: 12px;
 }
 
 .retry-btn {
   color: #ffffff;
-  padding: 6px 12px;
+  padding: 8px 14px;
   background-color: #1e90ff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
   font-weight: 500;
 }

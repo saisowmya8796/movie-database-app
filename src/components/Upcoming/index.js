@@ -1,7 +1,5 @@
 import {useState, useEffect, useCallback} from 'react'
 
-import {API_KEY, BASE_URL} from '../../constants'
-
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
 
@@ -17,6 +15,9 @@ const apiStatusConstants = {
   failure: 'FAILURE',
 }
 
+const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
+const BASE_URL = 'https://api.themoviedb.org/3'
+
 const MAX_PAGES = 500
 
 const Upcoming = () => {
@@ -27,14 +28,14 @@ const Upcoming = () => {
     errorMsg: null,
   })
 
-  const fetchUpcomingMovies = useCallback(async () => {
+  const fetchMovies = useCallback(async () => {
     setApiResponse({
       status: apiStatusConstants.inProgress,
       data: null,
       errorMsg: null,
     })
 
-    const apiUrl = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=en-US&page=${page}`
+    const apiUrl = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=${page}`
     const response = await fetch(apiUrl)
     const responseData = await response.json()
 
@@ -54,8 +55,8 @@ const Upcoming = () => {
   }, [page])
 
   useEffect(() => {
-    fetchUpcomingMovies()
-  }, [fetchUpcomingMovies])
+    fetchMovies()
+  }, [fetchMovies])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -73,9 +74,9 @@ const Upcoming = () => {
 
     const formattedMovieData = data.results.map(movie => ({
       id: movie.id,
-      movieName: movie.title,
+      title: movie.title,
       posterPath: movie.poster_path,
-      rating: movie.vote_average.toFixed(1),
+      voteAverage: movie.vote_average.toFixed(1),
     }))
 
     return (
@@ -103,7 +104,7 @@ const Upcoming = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchUpcomingMovies} />
+        return <FailureView errorMsg={errorMsg} onRetry={fetchMovies} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -113,7 +114,7 @@ const Upcoming = () => {
 
   return (
     <div className="page-container">
-      <h1 className="page-title">Upcoming Movies</h1>
+      <h1 className="page-title">Upcoming</h1>
       {renderUpcomingMovies()}
     </div>
   )

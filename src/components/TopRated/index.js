@@ -1,7 +1,5 @@
 import {useState, useEffect, useCallback} from 'react'
 
-import {API_KEY, BASE_URL} from '../../constants'
-
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
 
@@ -19,6 +17,9 @@ const apiStatusConstants = {
 
 const MAX_PAGES = 500
 
+const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
+const BASE_URL = 'https://api.themoviedb.org/3'
+
 const TopRated = () => {
   const [page, setPage] = useState(1)
   const [apiResponse, setApiResponse] = useState({
@@ -27,7 +28,7 @@ const TopRated = () => {
     errorMsg: null,
   })
 
-  const fetchTopRatedMovies = useCallback(async () => {
+  const fetchMovies = useCallback(async () => {
     setApiResponse({
       status: apiStatusConstants.inProgress,
       data: null,
@@ -54,8 +55,8 @@ const TopRated = () => {
   }, [page])
 
   useEffect(() => {
-    fetchTopRatedMovies()
-  }, [fetchTopRatedMovies])
+    fetchMovies()
+  }, [fetchMovies])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -73,9 +74,9 @@ const TopRated = () => {
 
     const formattedMovieData = data.results.map(movie => ({
       id: movie.id,
-      movieName: movie.title,
+      title: movie.title,
       posterPath: movie.poster_path,
-      rating: movie.vote_average.toFixed(1),
+      voteAverage: movie.vote_average.toFixed(1),
     }))
 
     return (
@@ -103,7 +104,7 @@ const TopRated = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchTopRatedMovies} />
+        return <FailureView errorMsg={errorMsg} onRetry={fetchMovies} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -113,7 +114,7 @@ const TopRated = () => {
 
   return (
     <div className="page-container">
-      <h1 className="page-title">Top Rated Movies</h1>
+      <h1 className="page-title">Top Rated</h1>
       {renderTopRatedMovies()}
     </div>
   )

@@ -1,10 +1,9 @@
 import {useState, useEffect, useCallback} from 'react'
 import {useLocation} from 'react-router-dom'
 
-import {API_KEY, BASE_URL} from '../../constants'
-
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
+
 import MovieCard from '../MovieCard'
 import Pagination from '../Pagination'
 
@@ -16,6 +15,8 @@ const apiStatusConstants = {
   success: 'SUCCESS',
   failure: 'FAILURE',
 }
+
+const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
 
 const MAX_PAGES = 500
 
@@ -46,7 +47,7 @@ const SearchResults = () => {
       errorMsg: null,
     })
 
-    const apiUrl = `${BASE_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${query}&page=${page}`
+    const apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
     const response = await fetch(apiUrl)
     const responseData = await response.json()
 
@@ -85,9 +86,9 @@ const SearchResults = () => {
 
     const formattedMovieData = data.results.map(movie => ({
       id: movie.id,
-      movieName: movie.title,
+      title: movie.title,
       posterPath: movie.poster_path,
-      rating: movie.vote_average.toFixed(1),
+      rating: movie.vote_average,
     }))
 
     return (

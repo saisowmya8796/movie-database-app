@@ -16,9 +16,7 @@ const Navbar = props => {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="title-logo" aria-label="movieDB">
-        <h1 className="logo">movieDB</h1>
-      </Link>
+      <h1 className="logo">movieDB</h1>
 
       <form className="search-form" onSubmit={onSearchSubmit}>
         <input

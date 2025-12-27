@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect} from 'react'
 import {useParams} from 'react-router-dom'
 
 import {FaStar} from 'react-icons/fa'
@@ -24,6 +24,7 @@ const apiStatusConstants = {
 const MovieDetails = () => {
   const {id} = useParams()
 
+  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     movie: null,
@@ -31,63 +32,67 @@ const MovieDetails = () => {
     errorMsg: null,
   })
 
-  const fetchMovieDetails = useCallback(async () => {
-    setApiResponse({
-      status: apiStatusConstants.inProgress,
-      movie: null,
-      cast: [],
-      errorMsg: null,
-    })
-
-    const movieUrl = `${BASE_URL}/movie/${id}?api_key=${API_KEY}`
-    const castUrl = `${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`
-
-    const movieResponse = await fetch(movieUrl)
-    const movieData = await movieResponse.json()
-
-    const castResponse = await fetch(castUrl)
-    const castData = await castResponse.json()
-
-    if (movieResponse.ok && castResponse.ok) {
-      const formattedMovieData = {
-        id: movieData.id,
-        title: movieData.title,
-        posterPath: movieData.poster_path,
-        rating: movieData.vote_average,
-        duration: movieData.runtime,
-        releaseDate: movieData.release_date,
-        overview: movieData.overview,
-        genres: Array.isArray(movieData.genres)
-          ? movieData.genres.map(each => each.name)
-          : [],
-      }
-
-      const formattedCastData = castData.cast.map(each => ({
-        id: each.id,
-        name: each.original_name,
-        character: each.character,
-        profilePath: each.profile_path,
-      }))
-
-      setApiResponse({
-        status: apiStatusConstants.success,
-        movie: formattedMovieData,
-        cast: formattedCastData,
-        errorMsg: null,
-      })
-    } else {
-      setApiResponse({
-        status: apiStatusConstants.failure,
-        movie: null,
-        cast: [],
-        errorMsg: movieData.status_message || 'Something went wrong',
-      })
-    }
-  }, [id])
+  const retryFetchMovieDetails = () => {
+    setRetryCount(prev => prev + 1)
+  }
 
   useEffect(() => {
+    const fetchMovieDetails = async () => {
+      setApiResponse({
+        status: apiStatusConstants.inProgress,
+        movie: null,
+        cast: [],
+        errorMsg: null,
+      })
+
+      const movieUrl = `${BASE_URL}/movie/${id}?api_key=${API_KEY}`
+      const castUrl = `${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`
+
+      const movieResponse = await fetch(movieUrl)
+      const movieData = await movieResponse.json()
+
+      const castResponse = await fetch(castUrl)
+      const castData = await castResponse.json()
+
+      if (movieResponse.ok && castResponse.ok) {
+        const formattedMovieData = {
+          id: movieData.id,
+          title: movieData.title,
+          posterPath: movieData.poster_path,
+          rating: movieData.vote_average,
+          duration: movieData.runtime,
+          releaseDate: movieData.release_date,
+          overview: movieData.overview,
+          genres: Array.isArray(movieData.genres)
+            ? movieData.genres.map(each => each.name)
+            : [],
+        }
+
+        const formattedCastData = castData.cast.map(each => ({
+          id: each.id,
+          name: each.original_name,
+          character: each.character,
+          profilePath: each.profile_path,
+        }))
+
+        setApiResponse({
+          status: apiStatusConstants.success,
+          movie: formattedMovieData,
+          cast: formattedCastData,
+          errorMsg: null,
+        })
+      } else {
+        setApiResponse({
+          status: apiStatusConstants.failure,
+          movie: null,
+          cast: [],
+          errorMsg: movieData.status_message || 'Something went wrong',
+        })
+      }
+    }
+
     fetchMovieDetails()
-  }, [fetchMovieDetails])
+  }, [retryCount, id])
 
   const renderSuccessView = () => {
     const {movie, cast} = apiResponse
@@ -116,7 +121,7 @@ const MovieDetails = () => {
             <h1 className="movie-title">{movie.title}</h1>
             <div className="movie-rating">
               <FaStar color="#f5c518" size={24} />
-              <p>Rating: {movie.rating}</p>
+              <p>Rating: {movie.rating.toFixed(1)}</p>
             </div>
             <p>Duration: {formatDuration(movie.duration)}</p>
             <p>Release Date: {movie.releaseDate}</p>
@@ -144,7 +149,9 @@ const MovieDetails = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchMovieDetails} />
+        return (
+          <FailureView errorMsg={errorMsg} onRetry={retryFetchMovieDetails} />
+        )
       case apiStatusConstants.success:
         return renderSuccessView()
       default:

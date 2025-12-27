@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect} from 'react'
 import {useLocation} from 'react-router-dom'
 
 import LoadingView from '../LoadingView'
@@ -16,9 +16,11 @@ const apiStatusConstants = {
   failure: 'FAILURE',
 }
 
-const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
-
 const MAX_PAGES = 500
+
+const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
+const BASE_URL = 'https://api.themoviedb.org/3'
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
 
 const SearchResults = () => {
   const location = useLocation()
@@ -26,6 +28,7 @@ const SearchResults = () => {
   const query = searchParams.get('query')
 
   const [page, setPage] = useState(1)
+  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
@@ -34,41 +37,45 @@ const SearchResults = () => {
 
   useEffect(() => {
     setPage(1)
-  }, [query])
-
-  const fetchSearchResults = useCallback(async () => {
-    if (!query || query.trim() === '') {
-      return
-    }
-
-    setApiResponse({
-      status: apiStatusConstants.inProgress,
-      data: null,
-      errorMsg: null,
-    })
-
-    const apiUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&page=${page}`
-    const response = await fetch(apiUrl)
-    const responseData = await response.json()
-
-    if (response.ok) {
-      setApiResponse({
-        status: apiStatusConstants.success,
-        data: responseData,
-        errorMsg: null,
-      })
-    } else {
-      setApiResponse({
-        status: apiStatusConstants.failure,
-        data: null,
-        errorMsg: responseData.status_message,
-      })
-    }
-  }, [query, page])
+  }, [location.search])
 
   useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!query || query.trim() === '') {
+        return
+      }
+
+      setApiResponse({
+        status: apiStatusConstants.inProgress,
+        data: null,
+        errorMsg: null,
+      })
+
+      const apiUrl = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}&page=1`
+      const response = await fetch(apiUrl)
+      const responseData = await response.json()
+
+      if (response.ok) {
+        setApiResponse({
+          status: apiStatusConstants.success,
+          data: responseData,
+          errorMsg: null,
+        })
+      } else {
+        setApiResponse({
+          status: apiStatusConstants.failure,
+          data: null,
+          errorMsg: responseData.status_message,
+        })
+      }
+    }
+
     fetchSearchResults()
-  }, [fetchSearchResults])
+  }, [retryCount, location.search, page, query])
+
+  const retryFetchSearch = () => {
+    setRetryCount(prev => prev + 1)
+  }
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -87,7 +94,7 @@ const SearchResults = () => {
     const formattedMovieData = data.results.map(movie => ({
       id: movie.id,
       title: movie.title,
-      posterPath: movie.poster_path,
+      posterPath: `${IMAGE_BASE_URL}${movie.poster_path}`,
       rating: movie.vote_average,
     }))
 
@@ -116,7 +123,7 @@ const SearchResults = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchSearchResults} />
+        return <FailureView errorMsg={errorMsg} onRetry={retryFetchSearch} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -125,10 +132,10 @@ const SearchResults = () => {
   }
 
   return (
-    <div className="page-container">
+    <>
       <h1 className="page-title">Search Results</h1>
-      {renderSearchResults()}
-    </div>
+      <div className="page-container">{renderSearchResults()}</div>
+    </>
   )
 }
 

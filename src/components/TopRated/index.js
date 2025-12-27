@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect} from 'react'
 
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
@@ -22,20 +22,25 @@ const BASE_URL = 'https://api.themoviedb.org/3'
 
 const TopRated = () => {
   const [page, setPage] = useState(1)
+  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
     errorMsg: null,
   })
 
-  const fetchMovies = useCallback(async () => {
+  const retryFetchTopRated = () => {
+    setRetryCount(prev => prev + 1)
+  }
+
+  const fetchMovies = async () => {
     setApiResponse({
       status: apiStatusConstants.inProgress,
       data: null,
       errorMsg: null,
     })
 
-    const apiUrl = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=en-US&page=${page}`
+    const apiUrl = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=en-US&page=1`
     const response = await fetch(apiUrl)
     const responseData = await response.json()
 
@@ -52,11 +57,11 @@ const TopRated = () => {
         errorMsg: responseData.status_message,
       })
     }
-  }, [page])
+  }
 
   useEffect(() => {
     fetchMovies()
-  }, [fetchMovies])
+  }, [retryCount])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -76,7 +81,7 @@ const TopRated = () => {
       id: movie.id,
       title: movie.title,
       posterPath: movie.poster_path,
-      voteAverage: movie.vote_average.toFixed(1),
+      voteAverage: movie.vote_average,
     }))
 
     return (
@@ -104,7 +109,7 @@ const TopRated = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchMovies} />
+        return <FailureView errorMsg={errorMsg} onRetry={retryFetchTopRated} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -113,10 +118,10 @@ const TopRated = () => {
   }
 
   return (
-    <div className="page-container">
+    <>
       <h1 className="page-title">Top Rated</h1>
-      {renderTopRatedMovies()}
-    </div>
+      <div className="page-container">{renderTopRatedMovies()}</div>
+    </>
   )
 }
 

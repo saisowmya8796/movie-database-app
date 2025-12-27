@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect} from 'react'
 
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
@@ -22,41 +22,46 @@ const BASE_URL = 'https://api.themoviedb.org/3'
 
 const Home = () => {
   const [page, setPage] = useState(1)
+  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
     errorMsg: null,
   })
 
-  const fetchMovies = useCallback(async () => {
-    setApiResponse({
-      status: apiStatusConstants.inProgress,
-      data: null,
-      errorMsg: null,
-    })
-
-    const apiUrl = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`
-    const response = await fetch(apiUrl)
-    const responseData = await response.json()
-
-    if (response.ok) {
-      setApiResponse({
-        status: apiStatusConstants.success,
-        data: responseData,
-        errorMsg: null,
-      })
-    } else {
-      setApiResponse({
-        status: apiStatusConstants.failure,
-        data: null,
-        errorMsg: responseData.status_message,
-      })
-    }
-  }, [page])
+  const retryFetchMovies = () => {
+    setRetryCount(prev => prev + 1)
+  }
 
   useEffect(() => {
+    const fetchMovies = async () => {
+      setApiResponse({
+        status: apiStatusConstants.inProgress,
+        data: null,
+        errorMsg: null,
+      })
+
+      const apiUrl = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`
+      const response = await fetch(apiUrl)
+      const responseData = await response.json()
+
+      if (response.ok) {
+        setApiResponse({
+          status: apiStatusConstants.success,
+          data: responseData,
+          errorMsg: null,
+        })
+      } else {
+        setApiResponse({
+          status: apiStatusConstants.failure,
+          data: null,
+          errorMsg: responseData.status_message,
+        })
+      }
+    }
+
     fetchMovies()
-  }, [fetchMovies])
+  }, [retryCount])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -76,7 +81,7 @@ const Home = () => {
       id: movie.id,
       title: movie.title,
       posterPath: movie.poster_path,
-      voteAverage: movie.vote_average.toFixed(1),
+      voteAverage: movie.vote_average,
     }))
 
     return (
@@ -104,7 +109,7 @@ const Home = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchMovies} />
+        return <FailureView errorMsg={errorMsg} onRetry={retryFetchMovies} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -113,10 +118,10 @@ const Home = () => {
   }
 
   return (
-    <div className="page-container">
+    <>
       <h1 className="page-title">Popular</h1>
-      {renderPopularMovies()}
-    </div>
+      <div className="page-container">{renderPopularMovies()}</div>
+    </>
   )
 }
 

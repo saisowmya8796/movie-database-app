@@ -4,7 +4,7 @@
   align-items: center;
   font-family: 'Roboto';
   gap: 10px;
-  padding: 10px;
+  padding: 5px;
   background-image: linear-gradient(to right, #aa076b, #61045f);
   color: #ffffff;
 }
@@ -12,7 +12,7 @@
 .logo {
   color: #ffffff;
   margin: 0px;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   white-space: nowrap;
 }
@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  max-width: 140px;
+  max-width: 120px;
   flex: 1;
 }
 
@@ -32,7 +32,7 @@
   border: none;
   outline: none;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 8px;
   background-color: #ffffff;
 }
 
@@ -43,42 +43,61 @@
   box-shadow: none;
 }
 
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
 .search-btn {
+  font-family: 'Roboto';
   display: flex;
   align-items: center;
   padding: 0px;
   margin: 0px;
-  font-size: 16px;
+  font-size: 10px;
   background: none;
   border: none;
-  color: white;
+  color: #ffffff;
   cursor: pointer;
 }
 
 .nav-links {
   display: flex;
-  gap: 3px;
+  gap: 1px;
 }
 
 .nav-link-item {
-  padding: 5px;
-  color: white;
-  font-size: 18px;
+  display: inline;
+  margin: 0px 2px;
   text-decoration: none;
 }
 
-.nav-icon {
-  font-size: 18px;
-  color: white;
+.nav-link-item p {
+  margin: 0px;
+  color: #ffffff;
+  font-size: 10px;
 }
 
-.nav-link-item span {
-  display: none;
+@media screen and (min-width: 570px) {
+  .search-form {
+    max-width: 190px;
+  }
+  .search-input {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .nav-links {
+    gap: 5px;
+  }
 }
 
 @media screen and (min-width: 768px) {
   .navbar {
-    padding: 10px 14px;
+    padding: 10px 16px;
   }
   .logo {
     font-size: 28px;
@@ -90,17 +109,13 @@
     font-size: 16px;
     padding: 8px 12px;
   }
-  .search-icon {
-    font-size: 24px;
+  .search-btn {
+    font-size: 16px;
   }
   .nav-links {
     gap: 10px;
   }
-  .nav-icon {
-    display: none;
-  }
-  .nav-link-item span {
-    display: inline;
+  .nav-link-item p {
     font-size: 18px;
     font-weight: 500;
   }

@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect} from 'react'
 
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
@@ -15,27 +15,32 @@ const apiStatusConstants = {
   failure: 'FAILURE',
 }
 
+const MAX_PAGES = 500
+
 const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
 const BASE_URL = 'https://api.themoviedb.org/3'
 
-const MAX_PAGES = 500
-
 const Upcoming = () => {
   const [page, setPage] = useState(1)
+  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
     errorMsg: null,
   })
 
-  const fetchMovies = useCallback(async () => {
+  const retryFetchUpcoming = () => {
+    setRetryCount(prev => prev + 1)
+  }
+
+  const fetchMovies = async () => {
     setApiResponse({
       status: apiStatusConstants.inProgress,
       data: null,
       errorMsg: null,
     })
 
-    const apiUrl = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=${page}`
+    const apiUrl = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1`
     const response = await fetch(apiUrl)
     const responseData = await response.json()
 
@@ -52,11 +57,11 @@ const Upcoming = () => {
         errorMsg: responseData.status_message,
       })
     }
-  }, [page])
+  }
 
   useEffect(() => {
     fetchMovies()
-  }, [fetchMovies])
+  }, [retryCount])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -76,7 +81,7 @@ const Upcoming = () => {
       id: movie.id,
       title: movie.title,
       posterPath: movie.poster_path,
-      voteAverage: movie.vote_average.toFixed(1),
+      voteAverage: movie.vote_average,
     }))
 
     return (
@@ -104,7 +109,7 @@ const Upcoming = () => {
       case apiStatusConstants.inProgress:
         return <LoadingView />
       case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={fetchMovies} />
+        return <FailureView errorMsg={errorMsg} onRetry={retryFetchUpcoming} />
       case apiStatusConstants.success:
         return renderSuccessView()
       default:
@@ -113,10 +118,10 @@ const Upcoming = () => {
   }
 
   return (
-    <div className="page-container">
+    <>
       <h1 className="page-title">Upcoming</h1>
-      {renderUpcomingMovies()}
-    </div>
+      <div className="page-container">{renderUpcomingMovies()}</div>
+    </>
   )
 }
 

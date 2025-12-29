@@ -1,13 +1,5 @@
-.page-title {
-  color: #aa076b;
-  font-size: 18px;
-  font-family: 'Roboto';
-  margin-left: 20px;
-  margin-bottom: 0px;
-}
-
 .page-container {
-  background-color: #ffffff;
+  background-color: #1a242f;
   padding: 16px;
 }
 
@@ -21,8 +13,10 @@
 
 .movies-grid {
   display: grid;
+  justify-items: center;
   grid-template-columns: 1fr;
   gap: 16px;
+  padding-left: 0px;
 }
 
 @media (min-width: 600px) {

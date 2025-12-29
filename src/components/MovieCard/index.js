@@ -1,32 +1,27 @@
 import {Link} from 'react-router-dom'
-
 import './index.css'
 
 const MovieCard = props => {
   const {movieDetails} = props
   const {id, title, posterPath, voteAverage} = movieDetails
 
+  const imageUrl = `https://image.tmdb.org/t/p/w500${posterPath}`
+
   return (
-    <div className="movie-card">
-      <img
-        src={`https://image.tmdb.org/t/p/w500${posterPath}`}
-        className="movie-poster"
-        alt={title}
-      />
+    <li className="movie-card">
+      <img src={imageUrl} className="movie-poster" alt={title} />
 
       <div className="card-details">
-        <div className="name-rating">
-          <p className="movie-card-title">{title}</p>
-          <p className="rating-text">{voteAverage}</p>
-        </div>
+        <h1 className="movie-card-title">{title}</h1>
+        <p className="rating-text">{voteAverage}</p>
 
-        <Link to={`/movie/${id}`}>
+        <Link to={`/movie/${id}`} className="details-link">
           <button type="button" className="details-btn">
             View Details
           </button>
         </Link>
       </div>
-    </div>
+    </li>
   )
 }
 

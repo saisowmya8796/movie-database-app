@@ -33,13 +33,13 @@ const Navbar = () => {
 
       <div className="nav-links">
         <Link to="/" className="nav-link-item" aria-label="Popular">
-          <p>Popular</p>
+          <h1>Popular</h1>
         </Link>
         <Link to="/top-rated" className="nav-link-item" aria-label="Top Rated">
-          <p>Top Rated</p>
+          <h1>Top Rated</h1>
         </Link>
         <Link to="/upcoming" className="nav-link-item" aria-label="Upcoming">
-          <p>Upcoming</p>
+          <h1>Upcoming</h1>
         </Link>
       </div>
     </nav>

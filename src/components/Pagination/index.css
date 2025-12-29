@@ -8,6 +8,7 @@
 
 .pagination button {
   padding: 6px 12px;
+  background-color: #ffffff;
   border: 1px solid #505016;
   color: #505016;
   border-radius: 4px;
@@ -24,6 +25,6 @@
 }
 
 .page-number {
-  color: #000000;
+  color: #ffffff;
   font-size: 14px;
 }

@@ -17,10 +17,8 @@ const apiStatusConstants = {
 }
 
 const MAX_PAGES = 500
-
-const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
-const BASE_URL = 'https://api.themoviedb.org/3'
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
+const searchMoviesURL =
+  'https://api.themoviedb.org/3/search/movie?api_key=d058755b6f8c782dce7a0831a9f4e3a4&language=en-US&query='
 
 const SearchResults = () => {
   const location = useLocation()
@@ -37,7 +35,7 @@ const SearchResults = () => {
 
   useEffect(() => {
     setPage(1)
-  }, [location.search])
+  }, [query])
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -45,13 +43,11 @@ const SearchResults = () => {
         return
       }
 
-      setApiResponse({
-        status: apiStatusConstants.inProgress,
-        data: null,
-        errorMsg: null,
-      })
+      setApiResponse(prev => ({...prev, status: apiStatusConstants.inProgress}))
 
-      const apiUrl = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}&page=1`
+      const encodedQuery = encodeURIComponent(query)
+      const apiUrl = `${searchMoviesURL}${encodedQuery}&page=${page}`
+
       const response = await fetch(apiUrl)
       const responseData = await response.json()
 
@@ -71,7 +67,7 @@ const SearchResults = () => {
     }
 
     fetchSearchResults()
-  }, [retryCount, location.search, page, query])
+  }, [retryCount, page, query])
 
   const retryFetchSearch = () => {
     setRetryCount(prev => prev + 1)
@@ -80,7 +76,7 @@ const SearchResults = () => {
   const renderSuccessView = () => {
     const {data} = apiResponse
 
-    if (!data || data.results.length === 0) {
+    if (!data || !Array.isArray(data.results) || data.results.length === 0) {
       return <p className="no-results">No movies found for your search.</p>
     }
 
@@ -94,17 +90,17 @@ const SearchResults = () => {
     const formattedMovieData = data.results.map(movie => ({
       id: movie.id,
       title: movie.title,
-      posterPath: `${IMAGE_BASE_URL}${movie.poster_path}`,
-      rating: movie.vote_average,
+      posterPath: movie.poster_path,
+      voteAverage: movie.vote_average,
     }))
 
     return (
       <>
-        <div className="movies-grid">
+        <ul className="movies-grid">
           {formattedMovieData.map(eachMovie => (
             <MovieCard key={eachMovie.id} movieDetails={eachMovie} />
           ))}
-        </div>
+        </ul>
 
         <Pagination
           page={page}
@@ -131,12 +127,7 @@ const SearchResults = () => {
     }
   }
 
-  return (
-    <>
-      <h1 className="page-title">Search Results</h1>
-      <div className="page-container">{renderSearchResults()}</div>
-    </>
-  )
+  return <div className="page-container">{renderSearchResults()}</div>
 }
 
 export default SearchResults

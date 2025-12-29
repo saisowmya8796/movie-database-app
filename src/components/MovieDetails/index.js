@@ -70,7 +70,7 @@ const MovieDetails = () => {
 
         const formattedCastData = castData.cast.map(each => ({
           id: each.id,
-          name: each.original_name,
+          originalName: each.original_name,
           character: each.character,
           profilePath: each.profile_path,
         }))
@@ -105,7 +105,7 @@ const MovieDetails = () => {
       const hours = Math.floor(minutes / 60)
       const mins = minutes % 60
 
-      return hours === 0 ? `${mins}min` : `${hours}hr ${mins}min`
+      return hours === 0 ? `${mins}m` : `${hours}h ${mins}m`
     }
 
     return (
@@ -119,25 +119,34 @@ const MovieDetails = () => {
 
           <div className="movie-info">
             <h1 className="movie-title">{movie.title}</h1>
-            <div className="movie-rating">
-              <FaStar color="#f5c518" size={24} />
-              <p>Rating: {movie.rating.toFixed(1)}</p>
+
+            <div className="info-row">
+              <p className="row-chip">
+                <FaStar size={12} /> {movie.rating.toFixed(1)}
+              </p>
+              <p className="row-chip">
+                Duration: {formatDuration(movie.duration)}
+              </p>
+              <p className="row-chip">Release Date: {movie.releaseDate}</p>
             </div>
-            <p>Duration: {formatDuration(movie.duration)}</p>
-            <p>Release Date: {movie.releaseDate}</p>
-            <p>Genres: {movie.genres.join(', ')}</p>
-            <p className="overview">Overview:</p>
-            <p>{movie.overview}</p>
+
+            <p className="movie-genres">
+              <span>Genres: </span>
+              {movie.genres.join(', ')}
+            </p>
+            <h3 className="overview">Overview:</h3>
+            <p className="movie-overview">{movie.overview}</p>
           </div>
         </div>
 
         <h2 className="cast-title">Cast</h2>
+        <hr className="horizontal-line" />
 
-        <div className="cast-grid">
+        <ul className="cast-grid">
           {cast.map(eachCast => (
             <CastCard key={eachCast.id} castDetails={eachCast} />
           ))}
-        </div>
+        </ul>
       </>
     )
   }

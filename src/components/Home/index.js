@@ -16,9 +16,8 @@ const apiStatusConstants = {
 }
 
 const MAX_PAGES = 500
-
-const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
-const BASE_URL = 'https://api.themoviedb.org/3'
+const getPopularMoviesURL =
+  'https://api.themoviedb.org/3/movie/popular?api_key=d058755b6f8c782dce7a0831a9f4e3a4&language=en-US&page='
 
 const Home = () => {
   const [page, setPage] = useState(1)
@@ -41,7 +40,7 @@ const Home = () => {
         errorMsg: null,
       })
 
-      const apiUrl = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`
+      const apiUrl = `${getPopularMoviesURL}${page}`
       const response = await fetch(apiUrl)
       const responseData = await response.json()
 
@@ -61,7 +60,7 @@ const Home = () => {
     }
 
     fetchMovies()
-  }, [retryCount])
+  }, [retryCount, page])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -86,11 +85,11 @@ const Home = () => {
 
     return (
       <>
-        <div className="movies-grid">
+        <ul className="movies-grid">
           {formattedMovieData.map(eachMovie => (
             <MovieCard key={eachMovie.id} movieDetails={eachMovie} />
           ))}
-        </div>
+        </ul>
 
         <Pagination
           page={page}
@@ -117,12 +116,7 @@ const Home = () => {
     }
   }
 
-  return (
-    <>
-      <h1 className="page-title">Popular</h1>
-      <div className="page-container">{renderPopularMovies()}</div>
-    </>
-  )
+  return <div className="page-container">{renderPopularMovies()}</div>
 }
 
 export default Home

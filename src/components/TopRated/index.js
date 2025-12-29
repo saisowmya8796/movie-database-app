@@ -16,9 +16,8 @@ const apiStatusConstants = {
 }
 
 const MAX_PAGES = 500
-
-const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
-const BASE_URL = 'https://api.themoviedb.org/3'
+const topRatedMoviesURL =
+  'https://api.themoviedb.org/3/movie/top_rated?api_key=d058755b6f8c782dce7a0831a9f4e3a4&language=en-US&page='
 
 const TopRated = () => {
   const [page, setPage] = useState(1)
@@ -33,35 +32,35 @@ const TopRated = () => {
     setRetryCount(prev => prev + 1)
   }
 
-  const fetchMovies = async () => {
-    setApiResponse({
-      status: apiStatusConstants.inProgress,
-      data: null,
-      errorMsg: null,
-    })
-
-    const apiUrl = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=en-US&page=1`
-    const response = await fetch(apiUrl)
-    const responseData = await response.json()
-
-    if (response.ok) {
+  useEffect(() => {
+    const fetchMovies = async () => {
       setApiResponse({
-        status: apiStatusConstants.success,
-        data: responseData,
+        status: apiStatusConstants.inProgress,
+        data: null,
         errorMsg: null,
       })
-    } else {
-      setApiResponse({
-        status: apiStatusConstants.failure,
-        data: null,
-        errorMsg: responseData.status_message,
-      })
-    }
-  }
 
-  useEffect(() => {
+      const apiUrl = `${topRatedMoviesURL}${page}`
+      const response = await fetch(apiUrl)
+      const responseData = await response.json()
+
+      if (response.ok) {
+        setApiResponse({
+          status: apiStatusConstants.success,
+          data: responseData,
+          errorMsg: null,
+        })
+      } else {
+        setApiResponse({
+          status: apiStatusConstants.failure,
+          data: null,
+          errorMsg: responseData.status_message,
+        })
+      }
+    }
+
     fetchMovies()
-  }, [retryCount])
+  }, [retryCount, page])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -86,11 +85,11 @@ const TopRated = () => {
 
     return (
       <>
-        <div className="movies-grid">
+        <ul className="movies-grid">
           {formattedMovieData.map(eachMovie => (
             <MovieCard key={eachMovie.id} movieDetails={eachMovie} />
           ))}
-        </div>
+        </ul>
 
         <Pagination
           page={page}
@@ -117,12 +116,7 @@ const TopRated = () => {
     }
   }
 
-  return (
-    <>
-      <h1 className="page-title">Top Rated</h1>
-      <div className="page-container">{renderTopRatedMovies()}</div>
-    </>
-  )
+  return <div className="page-container">{renderTopRatedMovies()}</div>
 }
 
 export default TopRated

@@ -16,9 +16,8 @@ const apiStatusConstants = {
 }
 
 const MAX_PAGES = 500
-
-const API_KEY = 'd058755b6f8c782dce7a0831a9f4e3a4'
-const BASE_URL = 'https://api.themoviedb.org/3'
+const upcomingMoviesURL =
+  'https://api.themoviedb.org/3/movie/upcoming?api_key=d058755b6f8c782dce7a0831a9f4e3a4&language=en-US&page='
 
 const Upcoming = () => {
   const [page, setPage] = useState(1)
@@ -33,35 +32,34 @@ const Upcoming = () => {
     setRetryCount(prev => prev + 1)
   }
 
-  const fetchMovies = async () => {
-    setApiResponse({
-      status: apiStatusConstants.inProgress,
-      data: null,
-      errorMsg: null,
-    })
-
-    const apiUrl = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1`
-    const response = await fetch(apiUrl)
-    const responseData = await response.json()
-
-    if (response.ok) {
+  useEffect(() => {
+    const fetchMovies = async () => {
       setApiResponse({
-        status: apiStatusConstants.success,
-        data: responseData,
+        status: apiStatusConstants.inProgress,
+        data: null,
         errorMsg: null,
       })
-    } else {
-      setApiResponse({
-        status: apiStatusConstants.failure,
-        data: null,
-        errorMsg: responseData.status_message,
-      })
-    }
-  }
 
-  useEffect(() => {
+      const apiUrl = `${upcomingMoviesURL}${page}`
+      const response = await fetch(apiUrl)
+      const responseData = await response.json()
+
+      if (response.ok) {
+        setApiResponse({
+          status: apiStatusConstants.success,
+          data: responseData,
+          errorMsg: null,
+        })
+      } else {
+        setApiResponse({
+          status: apiStatusConstants.failure,
+          data: null,
+          errorMsg: responseData.status_message,
+        })
+      }
+    }
     fetchMovies()
-  }, [retryCount])
+  }, [retryCount, page])
 
   const renderSuccessView = () => {
     const {data} = apiResponse
@@ -86,11 +84,11 @@ const Upcoming = () => {
 
     return (
       <>
-        <div className="movies-grid">
+        <ul className="movies-grid">
           {formattedMovieData.map(eachMovie => (
             <MovieCard key={eachMovie.id} movieDetails={eachMovie} />
           ))}
-        </div>
+        </ul>
 
         <Pagination
           page={page}
@@ -117,12 +115,7 @@ const Upcoming = () => {
     }
   }
 
-  return (
-    <>
-      <h1 className="page-title">Upcoming</h1>
-      <div className="page-container">{renderUpcomingMovies()}</div>
-    </>
-  )
+  return <div className="page-container">{renderUpcomingMovies()}</div>
 }
 
 export default Upcoming

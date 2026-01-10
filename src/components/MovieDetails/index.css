@@ -1,0 +1,155 @@
+.movie-container {
+  background-color: #1a242f;
+  padding: 20px 14px;
+  min-height: 100vh;
+  font-family: 'Roboto';
+}
+
+.movie-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.movie-poster-large {
+  width: 190px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.movie-info {
+  color: #e5e7eb;
+  max-width: 100%;
+  text-align: left;
+}
+
+.movie-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 70%;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.row-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #111827;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #facc15;
+}
+
+.movie-genres {
+  font-size: 14px;
+  color: #c6ccd6;
+  margin-bottom: 12px;
+}
+
+.movie-genres span {
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.overview {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.movie-overview {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d1d5db;
+}
+
+.cast-title {
+  margin-top: 32px;
+  font-size: 20px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.horizontal-line {
+  border: none;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  margin: 5px 16px;
+}
+
+.cast-grid {
+  display: grid;
+  justify-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-left: 0px;
+}
+
+/* ---------- Tablet ---------- */
+@media (min-width: 640px) {
+  .movie-details {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .movie-poster-large {
+    width: 220px;
+  }
+
+  .row-chip {
+    font-size: 14px;
+  }
+
+  .cast-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- Laptop ---------- */
+@media (min-width: 1024px) {
+  .movie-container {
+    padding: 32px;
+  }
+
+  .movie-details {
+    gap: 32px;
+  }
+
+  .movie-poster-large {
+    width: 260px;
+  }
+
+  .movie-title {
+    font-size: 34px;
+  }
+
+  .row-chip {
+    font-size: 16px;
+  }
+
+  .movie-overview {
+    font-size: 14px;
+  }
+
+  .cast-title {
+    font-size: 22px;
+    text-align: left;
+  }
+
+  .cast-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}

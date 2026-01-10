@@ -1,0 +1,125 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto';
+  gap: 10px;
+  padding: 5px;
+  background-color: #2c3e50;
+  color: #ffffff;
+}
+
+.logo {
+  color: #ffffff;
+  margin: 0px;
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 120px;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 8px;
+  background-color: #dce2e8;
+}
+
+.search-input:focus {
+  background-color: #ffffff;
+  color: #2b0a95;
+  outline: none;
+  box-shadow: none;
+}
+
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.search-btn {
+  font-family: 'Roboto';
+  display: flex;
+  align-items: center;
+  padding: 0px;
+  margin: 0px;
+  font-size: 10px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.nav-links h1 {
+  margin: 0px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.nav-link-item {
+  display: inline;
+  margin: 0px 2px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+@media screen and (min-width: 570px) {
+  .search-form {
+    max-width: 190px;
+  }
+  .search-input {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .nav-links {
+    gap: 5px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .navbar {
+    padding: 10px 16px;
+  }
+  .logo {
+    font-size: 28px;
+  }
+  .search-form {
+    max-width: 350px;
+  }
+  .search-input {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+  .search-btn {
+    font-size: 16px;
+  }
+  .nav-links {
+    gap: 10px;
+  }
+  .nav-links h1 {
+    font-size: 18px;
+    font-weight: 500;
+  }
+}

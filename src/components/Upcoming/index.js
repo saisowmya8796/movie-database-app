@@ -20,14 +20,11 @@ const upcomingMoviesURL =
 
 const Upcoming = () => {
   const [page, setPage] = useState(1)
-  const [retryCount, setRetryCount] = useState(0)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
     errorMsg: null,
   })
-
-  const retryFetch = () => setRetryCount(prev => prev + 1)
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -56,18 +53,25 @@ const Upcoming = () => {
     }
 
     fetchMovies()
-  }, [page, retryCount])
+  }, [page])
 
-  const renderSuccessView = () => {
-    const {data} = apiResponse
-    if (!data || !Array.isArray(data.results)) return null
+  if (apiResponse.status === apiStatusConstants.inProgress) {
+    return <LoadingView />
+  }
 
-    const totalPages = Math.min(data.total_pages || 1, MAX_PAGES)
+  if (apiResponse.status === apiStatusConstants.failure) {
+    return (
+      <FailureView errorMsg={apiResponse.errorMsg} onRetry={() => setPage(1)} />
+    )
+  }
+
+  if (apiResponse.status === apiStatusConstants.success && apiResponse.data) {
+    const totalPages = Math.min(apiResponse.data.total_pages || 1, MAX_PAGES)
 
     return (
-      <>
+      <div className="page-container">
         <ul className="movies-grid">
-          {data.results.map(movie => (
+          {apiResponse.data.results.map(movie => (
             <MovieCard key={movie.id} movieDetails={movie} />
           ))}
         </ul>
@@ -75,29 +79,14 @@ const Upcoming = () => {
         <Pagination
           page={page}
           totalPages={totalPages}
-          onPrev={() => setPage(prev => prev - 1)}
-          onNext={() => setPage(prev => prev + 1)}
+          onPrev={() => page > 1 && setPage(prev => prev - 1)}
+          onNext={() => page < totalPages && setPage(prev => prev + 1)}
         />
-      </>
+      </div>
     )
   }
 
-  const renderMovies = () => {
-    switch (apiResponse.status) {
-      case apiStatusConstants.inProgress:
-        return <LoadingView />
-      case apiStatusConstants.failure:
-        return (
-          <FailureView errorMsg={apiResponse.errorMsg} onRetry={retryFetch} />
-        )
-      case apiStatusConstants.success:
-        return renderSuccessView()
-      default:
-        return null
-    }
-  }
-
-  return <div className="page-container">{renderMovies()}</div>
+  return null
 }
 
 export default Upcoming

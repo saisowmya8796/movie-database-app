@@ -3,7 +3,6 @@ import {useLocation} from 'react-router-dom'
 
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
-
 import MovieCard from '../MovieCard'
 import Pagination from '../Pagination'
 
@@ -26,7 +25,7 @@ const SearchResults = () => {
   const query = searchParams.get('query')
 
   const [page, setPage] = useState(1)
-  const [retryCount, setRetryCount] = useState(0)
+  const [displayPage, setDisplayPage] = useState(1)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
@@ -38,99 +37,84 @@ const SearchResults = () => {
   }, [query])
 
   useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (!query || query.trim() === '') {
-        return
-      }
+    if (!query || query.trim() === '') return
 
+    const fetchSearchResults = async () => {
       setApiResponse(prev => ({...prev, status: apiStatusConstants.inProgress}))
 
-      const encodedQuery = encodeURIComponent(query)
-      const apiUrl = `${searchMoviesURL}${encodedQuery}&page=${page}`
-
-      const response = await fetch(apiUrl)
-      const responseData = await response.json()
+      const response = await fetch(
+        `${searchMoviesURL}${encodeURIComponent(query)}&page=${page}`,
+      )
+      const data = await response.json()
 
       if (response.ok) {
         setApiResponse({
           status: apiStatusConstants.success,
-          data: responseData,
+          data,
           errorMsg: null,
         })
       } else {
         setApiResponse({
           status: apiStatusConstants.failure,
           data: null,
-          errorMsg: responseData.status_message,
+          errorMsg: data.status_message,
         })
       }
     }
 
     fetchSearchResults()
-  }, [retryCount, page, query])
+  }, [page, query])
 
-  const retryFetchSearch = () => {
-    setRetryCount(prev => prev + 1)
-  }
+  const totalPages = apiResponse.data
+    ? Math.min(apiResponse.data.total_pages || 1, MAX_PAGES)
+    : 1
 
-  const renderSuccessView = () => {
-    const {data} = apiResponse
+  const renderContent = () => {
+    const {status, data, errorMsg} = apiResponse
 
-    if (!data || !Array.isArray(data.results) || data.results.length === 0) {
-      return <p className="no-results">No movies found for your search.</p>
+    if (status === apiStatusConstants.inProgress) return <LoadingView />
+
+    if (status === apiStatusConstants.failure)
+      return <FailureView errorMsg={errorMsg} onRetry={() => setPage(1)} />
+
+    if (status === apiStatusConstants.success && data) {
+      if (data.results.length === 0) {
+        return <p className="no-results">No movies found for your search.</p>
+      }
+
+      return (
+        <>
+          <ul className="movies-grid">
+            {data.results.map(movie => (
+              <MovieCard key={movie.id} movieDetails={movie} />
+            ))}
+          </ul>
+        </>
+      )
     }
 
-    const totalPagesFromApi =
-      data !== null && data !== undefined && data.total_pages
-        ? data.total_pages
-        : 1
-
-    const effectiveTotalPages = Math.min(totalPagesFromApi, MAX_PAGES)
-    /*
-    const formattedMovieData = data.results.map(movie => ({
-      id: movie.id,
-      title: movie.title,
-      posterPath: movie.poster_path,
-      voteAverage: movie.vote_average,
-    }))
-    */
-
-    const formattedMovieData = data.results.map(movie => movie)
-
-    return (
-      <>
-        <ul className="movies-grid">
-          {formattedMovieData.map(eachMovie => (
-            <MovieCard key={eachMovie.id} movieDetails={eachMovie} />
-          ))}
-        </ul>
-
-        <Pagination
-          page={page}
-          totalPages={effectiveTotalPages}
-          onPrev={() => page > 1 && setPage(prev => prev - 1)}
-          onNext={() => page < effectiveTotalPages && setPage(prev => prev + 1)}
-        />
-      </>
-    )
+    return null
   }
 
-  const renderSearchResults = () => {
-    const {status, errorMsg} = apiResponse
-
-    switch (status) {
-      case apiStatusConstants.inProgress:
-        return <LoadingView />
-      case apiStatusConstants.failure:
-        return <FailureView errorMsg={errorMsg} onRetry={retryFetchSearch} />
-      case apiStatusConstants.success:
-        return renderSuccessView()
-      default:
-        return null
-    }
-  }
-
-  return <div className="page-container">{renderSearchResults()}</div>
+  return (
+    <div className="page-container">
+      {renderContent()}
+      <Pagination
+        page={displayPage}
+        totalPages={totalPages}
+        onPrev={() => {
+          if (displayPage > 1) {
+            setDisplayPage(p => p - 1)
+            setPage(p => p - 1)
+          }
+        }}
+        onNext={() => {
+          setDisplayPage(p => p + 1)
+          setPage(p => p + 1)
+        }}
+      />
+    </div>
+  )
 }
 
 export default SearchResults

@@ -1,10 +1,8 @@
 import {useState, useEffect} from 'react'
-
 import LoadingView from '../LoadingView'
 import FailureView from '../FailureView'
 import MovieCard from '../MovieCard'
 import Pagination from '../Pagination'
-
 import '../PageLayout/index.css'
 
 const apiStatusConstants = {
@@ -20,14 +18,12 @@ const topRatedMoviesURL =
 
 const TopRated = () => {
   const [page, setPage] = useState(1)
-  const [retryCount, setRetryCount] = useState(0)
+  const [displayPage, setDisplayPage] = useState(1)
   const [apiResponse, setApiResponse] = useState({
     status: apiStatusConstants.initial,
     data: null,
     errorMsg: null,
   })
-
-  const retryFetch = () => setRetryCount(prev => prev + 1)
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -37,67 +33,67 @@ const TopRated = () => {
         errorMsg: null,
       })
 
-      const response = await fetch(`${topRatedMoviesURL}${page}`)
-      const data = await response.json()
+      const res = await fetch(`${topRatedMoviesURL}${page}`)
+      const data = await res.json()
 
-      if (response.ok) {
-        setApiResponse({
-          status: apiStatusConstants.success,
-          data,
-          errorMsg: null,
-        })
-      } else {
-        setApiResponse({
-          status: apiStatusConstants.failure,
-          data: null,
-          errorMsg: data.status_message,
-        })
-      }
+      setApiResponse(
+        res.ok
+          ? {status: apiStatusConstants.success, data, errorMsg: null}
+          : {
+              status: apiStatusConstants.failure,
+              data: null,
+              errorMsg: data.status_message,
+            },
+      )
     }
 
     fetchMovies()
-  }, [page, retryCount])
+  }, [page])
 
-  const renderSuccessView = () => {
-    const {data} = apiResponse
-    if (!data || !Array.isArray(data.results)) return null
+  const totalPages = apiResponse.data
+    ? Math.min(apiResponse.data.total_pages || 1, MAX_PAGES)
+    : 1
 
-    const totalPages = Math.min(data.total_pages || 1, MAX_PAGES)
+  const renderContent = () => {
+    const {status, data, errorMsg} = apiResponse
 
-    return (
-      <>
+    if (status === apiStatusConstants.inProgress) return <LoadingView />
+
+    if (status === apiStatusConstants.failure)
+      return <FailureView errorMsg={errorMsg} onRetry={() => setPage(1)} />
+
+    if (status === apiStatusConstants.success && data) {
+      return (
         <ul className="movies-grid">
           {data.results.map(movie => (
             <MovieCard key={movie.id} movieDetails={movie} />
           ))}
         </ul>
-
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPrev={() => setPage(prev => prev - 1)}
-          onNext={() => setPage(prev => prev + 1)}
-        />
-      </>
-    )
-  }
-
-  const renderMovies = () => {
-    switch (apiResponse.status) {
-      case apiStatusConstants.inProgress:
-        return <LoadingView />
-      case apiStatusConstants.failure:
-        return (
-          <FailureView errorMsg={apiResponse.errorMsg} onRetry={retryFetch} />
-        )
-      case apiStatusConstants.success:
-        return renderSuccessView()
-      default:
-        return null
+      )
     }
+
+    return null
   }
 
-  return <div className="page-container">{renderMovies()}</div>
+  return (
+    <div className="page-container">
+      {renderContent()}
+      <Pagination
+        page={displayPage}
+        totalPages={totalPages}
+        onPrev={() => {
+          if (displayPage > 1) {
+            setDisplayPage(p => p - 1)
+            setPage(p => p - 1)
+          }
+        }}
+        onNext={() => {
+          setDisplayPage(p => p + 1)
+          setPage(p => p + 1)
+        }}
+      />
+    </div>
+  )
 }
 
 export default TopRated

@@ -5,21 +5,13 @@ const Pagination = props => {
 
   return (
     <div className="pagination">
-      <button
-        type="button"
-        onClick={page > 1 ? onPrev : undefined}
-        disabled={page <= 1}
-      >
+      <button type="button" onClick={onPrev} disabled={page === 1}>
         Prev
       </button>
 
-      <p className="page-number">{page}</p>
+      <p>{page}</p>
 
-      <button
-        type="button"
-        onClick={page < totalPages ? onNext : undefined}
-        disabled={page >= totalPages}
-      >
+      <button type="button" onClick={onNext} disabled={page === totalPages}>
         Next
       </button>
     </div>

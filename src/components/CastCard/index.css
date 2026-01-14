@@ -1,0 +1,47 @@
+.cast-card {
+  list-style-type: none;
+  background-color: #1c1c1c;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 150px;
+  height: 270px; /* Fixed card height */
+  display: flex;
+  flex-direction: column;
+}
+
+.cast-image,
+.no-image {
+  width: 100%;
+  height: 200px; /* Fixed image area */
+  object-fit: cover;
+  background-color: #1f2933;
+}
+
+.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.cast-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 10px 2px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cast-character {
+  font-size: 12px;
+  margin: 0 10px 10px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
